@@ -1,5 +1,4 @@
 from GenericDocument import GenericDocument
-from PartType import Part
 
 
 class PlainDocument(GenericDocument):
@@ -10,8 +9,8 @@ class PlainDocument(GenericDocument):
 
 plain = PlainDocument()
 
-plain.add_heading1("Test")
-
-# plain.render_paragraph()
+plain.add_paragraph("Paragraph")
 
 plain.render()
+
+print(plain)

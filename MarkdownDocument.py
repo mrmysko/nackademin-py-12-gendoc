@@ -1,26 +1,22 @@
 from GenericDocument import GenericDocument
-from PartType import Part
 
 
 class MarkdownDocument(GenericDocument):
-    def render(self):
-        for type, line in self._document_parts:
-            match type:
-                case Part.HEADING1:
-                    print("# " + line)
-                case Part.HEADING2:
-                    print("## " + line)
-                case Part.HEADING3:
-                    print("### " + line)
-                case Part.PARAGRAPH:
-                    print(line)
-                case Part.CODEBLOCK:
-                    print("```" + line + "```")
-                case _:
-                    pass
+
+    def render_heading1(self, text):
+        return "<h1>" + text + "</h1>"
+
+    def render_heading2(self, text):
+        return "<h2>" + text + "</h2>"
+
+    def render_heading3(self, text):
+        return "<h3>" + text + "</h3>"
 
     def render_paragraph(self, text):
-        pass
+        return "<p>" + text + "<p>"
+
+    def render_codeblock(self, text):
+        return "<code>" + text + "</code"
 
 
 markdown = MarkdownDocument()
@@ -30,4 +26,4 @@ markdown.add_heading3("Heading 3")
 markdown.add_paragraph("Här är body-text i markdown.")
 markdown.add_codeblock("i = 0\nwhile i != 3\n\ti += 1\n")
 
-markdown.render()
+print(markdown.render())
