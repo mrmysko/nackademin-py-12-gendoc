@@ -1,22 +1,37 @@
 from GenericDocument import GenericDocument
+import re
 
 
 class HTMLDocument(GenericDocument):
 
+    @classmethod
+    def escape_html(cls, text):
+        return (
+            text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&#39;")
+        )
+
     def render_heading1(self, text):
-        return "<h1>" + text + "</h1>"
+        text = "<h1>" + self.escape_html(text) + "</h1>"
+        return text.replace("\n", "</br>")
 
     def render_heading2(self, text):
-        return "<h2>" + text + "</h2>"
+        text = "<h2>" + self.escape_html(text) + "</h2>"
+        return text.replace("\n", "</br>")
 
     def render_heading3(self, text):
-        return "<h3>" + text + "</h3>"
+        text = "<h3>" + self.escape_html(text) + "</h3>"
+        return text.replace("\n", "</br>")
 
     def render_paragraph(self, text):
-        return "<p>" + text + "<p>"
+        text = "<p>" + self.escape_html(text) + "</p>"
+        return text.replace("\n", "</br>")
 
     def render_codeblock(self, text):
-        return "<code>" + text + "</code"
+        return "<code>" + self.escape_html(text) + "</code>"
 
 
 html = HTMLDocument()
@@ -28,4 +43,8 @@ html.add_paragraph("Paragraph1")
 html.add_paragraph("Paragraph2")
 html.add_codeblock("i = 0\nwhile i != 3\n\ti += 1\n")
 
-print(html.render())
+html.merge_indices(1, 2, 3)
+
+html.render()
+
+print(html)

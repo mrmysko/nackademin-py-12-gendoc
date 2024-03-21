@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 class GenericDocument(ABC):
     def __init__(self):
         self._document_parts = list()
+        self.result = ""
 
     def __str__(self):
         return self.result
@@ -30,9 +31,23 @@ class GenericDocument(ABC):
         return self
 
     def merge_indices(self, dst_index, *src_indices, sep="\n"):
-        """pop remove index of line, get tuple value [1] and add to dst tuple[1]."""
-        for type, line in self._document_parts:
-            print(type, line)
+
+        # 6 lines for this? Yikes, refactor...
+        # Assign old type and line
+        old_type, old_line = self._document_parts[dst_index]
+        mod_list = list()
+        mod_list.append(old_line)
+        # Add document lines to temporary list.
+        mod_list.extend([self._document_parts[index][1] for index in src_indices])
+
+        # Join list elements and add at old index.
+        self._document_parts[dst_index] = (old_type, sep.join(mod_list))
+
+        # Remove source indexes in reverse order, forward order decrements following elements, so 1, 2 src_indices would remove index 1, 3.
+        [self._document_parts.pop(index) for index in reversed(src_indices)]
+
+        print(self._document_parts)
+        return self
 
     def merge_consecutive(self, partType):
         for type, line in self._document_parts:
@@ -42,20 +57,20 @@ class GenericDocument(ABC):
 
     def render(self):
 
-        # Rätt output (utom en newline i början).
+        # Rätt output.
         # Hur använder jag getattr? Och får in prion? Och vad är det för text den här funktionen ska ta in?
         self.result = ""
         for type, line in self._document_parts:
             if type.value == 1:
-                self.result = self.result + "\n" + "".join(self.render_heading1(line))
+                self.result = self.result + "".join(self.render_heading1(line)) + "\n"
             elif type.value == 2:
-                self.result = self.result + "\n" + "".join(self.render_heading2(line))
+                self.result = self.result + "".join(self.render_heading2(line)) + "\n"
             elif type.value == 3:
-                self.result = self.result + "\n" + "".join(self.render_heading3(line))
+                self.result = self.result + "".join(self.render_heading3(line)) + "\n"
             elif type.value == 4:
-                self.result = self.result + "\n" + "".join(self.render_paragraph(line))
+                self.result = self.result + "".join(self.render_paragraph(line)) + "\n"
             elif type.value == 5:
-                self.result = self.result + "\n" + "".join(self.render_codeblock(line))
+                self.result = self.result + "".join(self.render_codeblock(line)) + "\n"
             else:
                 raise Exception
 

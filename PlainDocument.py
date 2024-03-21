@@ -8,9 +8,8 @@ class PlainDocument(GenericDocument):
 
 
 plain = PlainDocument()
-
-plain.add_paragraph("Paragraph")
-
+plain.add_paragraph("Paragraph1")
+plain.add_paragraph("Paragraph2")
 plain.render()
 
 print(plain)
