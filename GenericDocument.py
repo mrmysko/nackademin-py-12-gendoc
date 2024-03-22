@@ -1,6 +1,8 @@
 from PartType import Part
 from abc import ABC, abstractmethod
 
+# Todo - Refactor merge functions.
+
 
 class GenericDocument(ABC):
     def __init__(self):
@@ -51,10 +53,9 @@ class GenericDocument(ABC):
     def merge_consecutive(self, partType):
 
         # What doesnt work currently:
-        # - Not removing elements.
         # - Not appending if document ends on a consecutive sequence.
         mod_list = list()
-        insert_index = None
+        part_index = list()
 
         # Iterate over lines in document.
         for index, (part, line) in enumerate(self._document_parts):
@@ -62,43 +63,24 @@ class GenericDocument(ABC):
 
             # If the part is same as partType
             if part == partType:
-                # And the list is empty.
-                if len(mod_list) == 0:
-                    # Set that index as the start of the consecutive sequence.
-                    insert_index = index
+                # Set that index as the start of the consecutive sequence.
+                part_index.append(index)
+
                 # Add that line to the list.
                 mod_list.append(line)
-                print(f"{index} {line}")
 
-            # Commit to document and reset?
+            # Commit to document and reset if part is not correct type and mod_list is not empty.
             elif len(mod_list) != 0:
-                self._document_parts[insert_index] = (partType, "\n".join(mod_list))
-                print(
-                    f"THIS IS THE INSERTED TUPLE: {self._document_parts[insert_index]}"
-                )
+                # Add the appended line at correct index.
+                self._document_parts[part_index[0]] = (partType, "\n".join(mod_list))
+                print(f"INSERTED TUPLE: {self._document_parts[part_index[0]]}")
+
+                # Remove appended lines from document.
+                [self._document_parts.pop(index) for index in reversed(part_index[1:])]
 
                 # Reset insert_index and mod_list.
-                insert_index = None
+                part_index = list()
                 mod_list = list()
-
-            print(mod_list)
-
-        # So this is a list of indices with the right partType...
-        # Now smash together consecutive numbers into the first element of a consecutive sequence.
-        # new_str = "\n".join(mod_list)
-        # new_tup = (partType, new_str)
-        # print(new_tup)
-
-        # Adds indices after partType match to src_indices if they match partType
-        # Doesnt work on multiple separate consecutives.
-        # src_indices = [
-        #    index
-        #    for index, (type, line) in enumerate(self._document_parts)
-        #    if type.name == partType
-        #    and self._document_parts[index - 1][0].name == partType
-        # ]
-
-        # self.merge_indices(src_indices[0] - 1, *src_indices)
 
         return self
 
@@ -109,15 +91,15 @@ class GenericDocument(ABC):
         self.result = ""
         for type, line in self._document_parts:
             if type.value == 1:
-                self.result = self.result + "".join(self.render_heading1(line)) + "\n"
+                self.result = f'{self.result}{"".join(self.render_heading1(line))}\n'
             elif type.value == 2:
-                self.result = self.result + "".join(self.render_heading2(line)) + "\n"
+                self.result = f'{self.result}{"".join(self.render_heading2(line))}\n'
             elif type.value == 3:
-                self.result = self.result + "".join(self.render_heading3(line)) + "\n"
+                self.result = f'{self.result}{"".join(self.render_heading3(line))}\n'
             elif type.value == 4:
-                self.result = self.result + "".join(self.render_paragraph(line)) + "\n"
+                self.result = f'{self.result}{"".join(self.render_paragraph(line))}\n'
             elif type.value == 5:
-                self.result = self.result + "".join(self.render_codeblock(line)) + "\n"
+                self.result = f'{self.result}{"".join(self.render_codeblock(line))}\n'
             else:
                 raise Exception
 

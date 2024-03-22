@@ -15,23 +15,23 @@ class HTMLDocument(GenericDocument):
         )
 
     def render_heading1(self, text):
-        text = "<h1>" + self.escape_html(text) + "</h1>"
+        text = f"<h1>{self.escape_html(text)}</h1>"
         return text.replace("\n", "</br>")
 
     def render_heading2(self, text):
-        text = "<h2>" + self.escape_html(text) + "</h2>"
+        text = f"<h2>{self.escape_html(text)}</h2>"
         return text.replace("\n", "</br>")
 
     def render_heading3(self, text):
-        text = "<h3>" + self.escape_html(text) + "</h3>"
+        text = f"<h3>{self.escape_html(text)}</h3>"
         return text.replace("\n", "</br>")
 
     def render_paragraph(self, text):
-        text = "<p>" + self.escape_html(text) + "</p>"
+        text = f"<p>{self.escape_html(text)}</p>"
         return text.replace("\n", "</br>")
 
     def render_codeblock(self, text):
-        return "<code>" + self.escape_html(text) + "</code>"
+        return f"<code>{self.escape_html(text)}</code>"
 
 
 html = HTMLDocument()
