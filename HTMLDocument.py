@@ -36,24 +36,16 @@ class HTMLDocument(GenericDocument):
 
 html = HTMLDocument()
 
-html.add_heading3("Test")
-html.add_heading1("Heading 1")
-html.add_heading2("Heading 2")
-html.add_heading3("Heading 3")
-html.add_paragraph("Paragraph1")
-html.add_paragraph("Paragraph2")
-html.add_codeblock("i = 0\nwhile i != 3\n\ti += 1\n")
-
-html.merge_indices(1, 2, 3)
-
 html.add_heading3("Heading 3.1")
 html.add_heading3("Heading 3.2")
 html.add_heading2("Heading 2")
+html.add_heading1("Heading 1")
 html.add_heading3("Heading 3.3")
 html.add_heading3("Heading 3.4")
 html.add_heading3("Heading 3.5")
+html.add_paragraph("Paragraph")
 
 html.merge_consecutive(Part.HEADING3)
 
-# html.render()
-# print(html)
+html.render()
+print(html)

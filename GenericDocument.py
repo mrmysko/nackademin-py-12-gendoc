@@ -50,14 +50,44 @@ class GenericDocument(ABC):
 
     def merge_consecutive(self, partType):
 
+        # What doesnt work currently:
+        # - Not removing elements.
+        # - Not appending if document ends on a consecutive sequence.
         mod_list = list()
+        insert_index = None
+
+        # Iterate over lines in document.
         for index, (part, line) in enumerate(self._document_parts):
+            print(f"DEBUG: {index} {type(part)} {part} {part.value} {part.name} {line}")
+
+            # If the part is same as partType
             if part == partType:
-                mod_list.append(index)
+                # And the list is empty.
+                if len(mod_list) == 0:
+                    # Set that index as the start of the consecutive sequence.
+                    insert_index = index
+                # Add that line to the list.
+                mod_list.append(line)
+                print(f"{index} {line}")
+
+            # Commit to document and reset?
+            elif len(mod_list) != 0:
+                self._document_parts[insert_index] = (partType, "\n".join(mod_list))
+                print(
+                    f"THIS IS THE INSERTED TUPLE: {self._document_parts[insert_index]}"
+                )
+
+                # Reset insert_index and mod_list.
+                insert_index = None
+                mod_list = list()
+
+            print(mod_list)
 
         # So this is a list of indices with the right partType...
         # Now smash together consecutive numbers into the first element of a consecutive sequence.
-        print(mod_list)
+        # new_str = "\n".join(mod_list)
+        # new_tup = (partType, new_str)
+        # print(new_tup)
 
         # Adds indices after partType match to src_indices if they match partType
         # Doesnt work on multiple separate consecutives.
