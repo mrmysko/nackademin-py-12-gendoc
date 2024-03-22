@@ -46,14 +46,31 @@ class GenericDocument(ABC):
         # Remove source indexes in reverse order, forward order decrements following elements, so 1, 2 src_indices would remove index 1, 3.
         [self._document_parts.pop(index) for index in reversed(src_indices)]
 
-        print(self._document_parts)
         return self
 
     def merge_consecutive(self, partType):
-        for type, line in self._document_parts:
-            print(type, line)
 
-    """for line, if type[line index] and type[line index + 1] == samma, merge"""
+        mod_list = list()
+        for index, (part, line) in enumerate(self._document_parts):
+            if part == partType:
+                mod_list.append(index)
+
+        # So this is a list of indices with the right partType...
+        # Now smash together consecutive numbers into the first element of a consecutive sequence.
+        print(mod_list)
+
+        # Adds indices after partType match to src_indices if they match partType
+        # Doesnt work on multiple separate consecutives.
+        # src_indices = [
+        #    index
+        #    for index, (type, line) in enumerate(self._document_parts)
+        #    if type.name == partType
+        #    and self._document_parts[index - 1][0].name == partType
+        # ]
+
+        # self.merge_indices(src_indices[0] - 1, *src_indices)
+
+        return self
 
     def render(self):
 

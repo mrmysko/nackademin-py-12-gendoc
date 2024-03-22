@@ -1,5 +1,5 @@
 from GenericDocument import GenericDocument
-import re
+from PartType import Part
 
 
 class HTMLDocument(GenericDocument):
@@ -36,6 +36,7 @@ class HTMLDocument(GenericDocument):
 
 html = HTMLDocument()
 
+html.add_heading3("Test")
 html.add_heading1("Heading 1")
 html.add_heading2("Heading 2")
 html.add_heading3("Heading 3")
@@ -45,6 +46,14 @@ html.add_codeblock("i = 0\nwhile i != 3\n\ti += 1\n")
 
 html.merge_indices(1, 2, 3)
 
-html.render()
+html.add_heading3("Heading 3.1")
+html.add_heading3("Heading 3.2")
+html.add_heading2("Heading 2")
+html.add_heading3("Heading 3.3")
+html.add_heading3("Heading 3.4")
+html.add_heading3("Heading 3.5")
 
-print(html)
+html.merge_consecutive(Part.HEADING3)
+
+# html.render()
+# print(html)

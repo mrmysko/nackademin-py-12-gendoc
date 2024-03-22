@@ -43,7 +43,13 @@ markdown.add_paragraph("Här är body-text i markdown.")
 markdown.add_codeblock("i = 0\nwhile i != 3\n\ti += 1\n")
 
 
-markdown.merge_indices(1, 2, 3)
+# markdown.merge_indices(1, 2, 3)
+
+markdown.add_heading3("Heading 3.1")
+markdown.add_heading3("Heading 3.2")
+markdown.add_heading3("Heading 3.3")
+
+markdown.merge_consecutive("HEADING3")
 
 markdown.render()
 print(markdown)
