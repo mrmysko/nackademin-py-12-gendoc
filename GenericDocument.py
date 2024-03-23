@@ -52,14 +52,14 @@ class GenericDocument(ABC):
 
     def merge_consecutive(self, partType):
 
-        # What doesnt work currently:
-        # - Not appending if document ends on a consecutive sequence.
+        # Somehow I got there....
+
         mod_list = list()
         part_index = list()
 
         # Iterate over lines in document.
         for index, (part, line) in enumerate(self._document_parts):
-            print(f"DEBUG: {index} {type(part)} {part} {part.value} {part.name} {line}")
+            # print(f"DEBUG: {index} {type(part)} {part} {part.value} {part.name} {line}")
 
             # If the part is same as partType
             if part == partType:
@@ -73,14 +73,20 @@ class GenericDocument(ABC):
             elif len(mod_list) != 0:
                 # Add the appended line at correct index.
                 self._document_parts[part_index[0]] = (partType, "\n".join(mod_list))
-                print(f"INSERTED TUPLE: {self._document_parts[part_index[0]]}")
+                # print(f"INSERTED TUPLE: {self._document_parts[part_index[0]]}")
 
-                # Remove appended lines from document.
-                [self._document_parts.pop(index) for index in reversed(part_index[1:])]
+                # Set merged lines to None, removing them in the loop creates issues with indexing.
+                for index in part_index[1:]:
+                    self._document_parts[index] = None
 
                 # Reset insert_index and mod_list.
                 part_index = list()
                 mod_list = list()
+
+        # Remove None lines.
+        self._document_parts = [
+            pair for pair in self._document_parts if pair is not None
+        ]
 
         return self
 
