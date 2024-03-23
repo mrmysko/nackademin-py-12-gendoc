@@ -1,7 +1,7 @@
 from PartType import Part
 from abc import ABC, abstractmethod
 
-# Todo - Refactor merge functions.
+# Todo - Refactor everything...
 
 
 class GenericDocument(ABC):
@@ -96,22 +96,73 @@ class GenericDocument(ABC):
 
     def render(self):
 
-        # Rätt output.
-        # Hur använder jag getattr? Och får in prion? Och vad är det för text den här funktionen ska ta in?
-        self.result = ""
-        for type, line in self._document_parts:
-            if type.value == 1:
-                self.result = f'{self.result}{"".join(self.render_heading1(line))}\n'
-            elif type.value == 2:
-                self.result = f'{self.result}{"".join(self.render_heading2(line))}\n'
-            elif type.value == 3:
-                self.result = f'{self.result}{"".join(self.render_heading3(line))}\n'
-            elif type.value == 4:
-                self.result = f'{self.result}{"".join(self.render_paragraph(line))}\n'
-            elif type.value == 5:
-                self.result = f'{self.result}{"".join(self.render_codeblock(line))}\n'
+        # This is very clunky.......
+        for part, line in self._document_parts:
+
+            # Heading 1 prio
+            if part == Part.HEADING1:
+                if getattr(self, "render_heading1", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_heading1(line))}\n'
+                    )
+                else:
+                    self.result = (
+                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
+                    )
+
+            # Heading 2 prio
+            elif part == Part.HEADING2:
+                if getattr(self, "render_heading2", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_heading2(line))}\n'
+                    )
+                elif getattr(self, "render_heading1", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_heading1(line))}\n'
+                    )
+                else:
+                    self.result = (
+                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
+                    )
+
+            # Heading 3 prio
+            elif part == Part.HEADING3:
+                if getattr(self, "render_heading3", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_heading3(line))}\n'
+                    )
+                elif getattr(self, "render_heading2", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_heading2(line))}\n'
+                    )
+                elif getattr(self, "render_heading1", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_heading1(line))}\n'
+                    )
+                else:
+                    self.result = (
+                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
+                    )
+
+            # Codeblock prio
+            elif part == Part.CODEBLOCK:
+                if getattr(self, "render_codeblock", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_codeblock(line))}\n'
+                    )
+                else:
+                    self.result = (
+                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
+                    )
+
+            # If part is something thats not been handled so far, try to render it as a paragraph. Else raise exception.
             else:
-                raise Exception
+                if getattr(self, "render_paragraph", None):
+                    self.result = (
+                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
+                    )
+                else:
+                    raise Exception
 
         return self.result
 
