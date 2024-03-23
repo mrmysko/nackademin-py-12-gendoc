@@ -44,9 +44,10 @@ html.add_heading3("Heading 3.3")
 html.add_codeblock("Put that cookie down!")
 html.add_heading3("Heading 3.4")
 html.add_heading3("Heading 3.5")
-html.add_paragraph("Paragraph")
 
 html.merge_consecutive(Part.HEADING3)
+html.merge_consecutive(Part.PARAGRAPH)
+html.merge_consecutive(Part.CODEBLOCK)
 
 html.render()
 print(html)

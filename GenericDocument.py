@@ -52,8 +52,6 @@ class GenericDocument(ABC):
 
     def merge_consecutive(self, partType):
 
-        # Somehow I got there....
-
         mod_list = list()
         part_index = list()
 
@@ -70,7 +68,7 @@ class GenericDocument(ABC):
                 mod_list.append(line)
 
             # Commit to document and reset if part is not correct type and mod_list is not empty.
-            elif len(mod_list) != 0:
+            elif mod_list:
                 # Add the appended line at correct index.
                 self._document_parts[part_index[0]] = (partType, "\n".join(mod_list))
                 # print(f"INSERTED TUPLE: {self._document_parts[part_index[0]]}")
@@ -82,6 +80,12 @@ class GenericDocument(ABC):
                 # Reset insert_index and mod_list.
                 part_index = list()
                 mod_list = list()
+
+        # If part is partType on the last iteration the last append wont happen, so need to run it once outside the loop.
+        if mod_list:
+            self._document_parts[part_index[0]] = (partType, "\n".join(mod_list))
+            for index in part_index[1:]:
+                self._document_parts[index] = None
 
         # Remove None lines.
         self._document_parts = [
