@@ -18,9 +18,8 @@ Syftet med denna uppgift är flerfaldigt:
 
 - Mental förberedelse. Även om detta är en av de större uppgifterna i mängden
   text i beskrivningen och i antal filer, så är det inte nödvändigtvis den
-  svåraste. Tänk positivt och var tålmodig. Uppgiften är en chans att växa inom
-  programmering. Ta det steg för steg och dela upp arbetet i hanterbara delar.
-- Repetera grunderna i Python-programmering för att säkerställa en solid grund.
+  svåraste. Tänk positivt och var tålmodig. Ta det steg för steg och dela upp
+  arbetet i hanterbara delar.
 - Lär dig hur virtuella miljöer fungerar och hur de används för
   projektberoenden.
 - Läs igenom dokumentationen för pytest.
@@ -28,10 +27,7 @@ Syftet med denna uppgift är flerfaldigt:
   ett rekommenderat sätt att arbeta med uppgiften.
 - Läs på om hur klasser, arv, abstrakta klasser, abstrakta metoder och
   klassmetoder fungerar i Python.
-- Bekanta dig med `getattr`-funktionen som kan användas till att undersöka om
-  ett objekt har ett visst attribut eller en metod. I uppgiften så kommer
-  överklassen att behöva undersöka om en del namngivna funktioner finns i
-  underklassen.
+
 
 # Beskrivning
 
@@ -182,7 +178,7 @@ classDiagram
 
 class GenericDocument
 <<abstract>> GenericDocument
-GenericDocument : -collections.Sequence _document_parts
+GenericDocument : -list _document_parts
 GenericDocument : __init__()
 GenericDocument : add_heading1(text) self
 GenericDocument : add_heading2(text) self
@@ -193,22 +189,24 @@ GenericDocument : merge_indices(dst_index, *src_indices, sep) self
 GenericDocument : merge_consecutive(partType) self
 GenericDocument : render(text) self
 GenericDocument : render_paragraph(text)* text
+GenericDocument : __getitem__(index) tuple
+GenericDocument : __len__(text) int
 
 
 class HTMLDocument
 GenericDocument <|-- HTMLDocument
-HTMLDocument : render_paragraph(text) text
 HTMLDocument : render_heading1(text) text
 HTMLDocument : render_heading2(text) text
 HTMLDocument : render_heading3(text) text
+HTMLDocument : render_paragraph(text) text
 HTMLDocument : render_codeblock(text) text
 
 class MarkdownDocument
 GenericDocument <|-- MarkdownDocument
-MarkdownDocument : render_paragraph(text) text
 MarkdownDocument : render_heading1(text) text
 MarkdownDocument : render_heading2(text) text
 MarkdownDocument : render_heading3(text) text
+MarkdownDocument : render_paragraph(text) text
 MarkdownDocument : render_codeblock(text) text
 
 class PlainDocument
@@ -342,6 +340,20 @@ argument.
 - Utskrift: Inget
 - Returvärde: Inget
 
+### Metoder för att hämta element och skriva ut längden
+
+Abstrakta klasser som ärver av ABC måste implementera __getitem__ och __len__
+antingen i den abstrakta kallsen eller den konkreta. Det är enklast att
+implementera båda i den här klassen enligt följande kod:
+
+```python
+    def __getitem__(self, index):
+        return self._document_parts[index]
+
+    def __len__(self):
+        return len(self._document_parts)
+```
+
 ### Metoderna `add_heading[1..3]`, `add_paragraph` och `add_codeblock`
 
 `add`-metoderna tar emot en text och lägger in en ny dokumentdel av den typ som
@@ -364,7 +376,7 @@ Följande beskrivning för `add_heading1` fungerar på motsvarande sätt för de
 1. Anrop: `add_heading1("Fibonacci")`
 
    - Utskrift: Inget!
-   - Sidoeffekt: Tupeln `(PartType.HEADING1, text)` lägg tills sist i
+   - Sidoeffekt: Tupeln `(PartType.HEADING1, "Fibonacci")` lägg tills sist i
      `_document_parts`
    - Returvärde: `self`
 
@@ -384,18 +396,24 @@ Följande beskrivning för `add_heading1` fungerar på motsvarande sätt för de
 
 ### Metoden `merge_indices`
 
-`merge_indices` används för att kombinera texten från valda dokumentdelar
-baserat på deras index. Metoden tar ett destinationsindex (`dst_index`) och ett
-eller flera källindex (`src_indices`) som argument. Texten från dokumentdelarna
-vid källindexen läggs till texten för dokumentdelen vid destinationsindexet, med
-varje textdel separerad av en valfri separator `sep`, som standard är `"\n"`.
-Dokumentdelen vid destinationsindexet behåller sin ursprungliga typ, medan de
-övriga specificerade dokumentdelarna tas bort efter sammanfogningen.
+Metoden `merge_indices` används för att "sammanfoga" text i dokumentdelarna vars
+index finns i `src_indices` till texten i dokumentdelen vars index finns angivet
+i `dst_index`. Mellan varje textdel finns en `sep`arator vilken är `\n` om inget
+annat anges.
+
+Efter textöverföringen tas dokumentdelarna angivna i `src_indices` bort.
+Dokumentdelen i destinationen behåller sin typ och får bara mer text.
+
+Oavsett ordningen som indexen i `src_indices` angetts så görs sammanfogningen
+från lägst till högst index. Om `src_indices` innehåller dubletter tas dessa
+bort.
+
+Om `dst_index` angetts i `src_indices` kastas ett `ValueError`.
 
 - Signatur: `merge_indices(dst_index: int, *src_indices, sep = "\n") -> Self`
 - Sidoeffekt: Dokumentdelarna på källindexen (`src_indices`) raderas efter att
   deras text lagts till målindexets (`dst_index`) dokumentdels text, med en
-  separator (`sep`) mellan textdelarna.
+  separator (`sep`) mellan textdelarna i ordningen lägst till högst index.
 - Utskrift: Inget!
 - Returvärde: `self`
 
@@ -405,7 +423,6 @@ I följande exempel så antar vi, om inget annat anges, att det finns en instans
 `h` med dokumentdelar enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -419,7 +436,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett.\nStycke två."),
@@ -434,7 +450,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik\nStycke ett."),
     (PartType.PARAGRAPH, "Stycke två."),
@@ -449,7 +464,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik\nStycke ett.\nStycke två.\nStycke tre.")
 ]
@@ -457,12 +471,23 @@ h._document_parts = [
 
 - Returvärde: `self`
 
-4. Anrop: `h.merge_indices(0,1,2,3,sep="<MYSEPARATOR>")`
+4. Anrop: `h.merge_indices(0,2,3,1)`
    - Utskrift: Inget!
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
+h._document_parts = [
+    (PartType.HEADING1, "Rubrik\nStycke ett.\nStycke två.\nStycke tre.")
+]
+```
 
+- Returvärde: `self`
+
+5. Anrop: `h.merge_indices(0,1,2,3,sep="<MYSEPARATOR>")`
+   - Utskrift: Inget!
+   - Sidoeffekt: Uppdaterad `_document_parts` enligt:
+
+```python
 h._document_parts = [
     (PartType.HEADING1, "Rubrik<MYSEPARATOR>Stycke ett.<MYSEPARATOR>Stycke två.<MYSEPARATOR>Stycke tre.")
 ]
@@ -470,12 +495,17 @@ h._document_parts = [
 
 - Returvärde: `self`
 
+6. Anrop: `h.merge_indices(1,1,2)`
+   - Undantag kastas!
+   - Undantagstyp: `ValueError`
+
+
 ### Metoden `merge_consecutive`
 
 `merge_consecutive` tar en `PartType` och sammanfogar intilliggande, lika typer
 av dokumentdelar i en lista. Den första delen i varje grupp behålls och texten
 från de följande delarna läggs till den, separerade med `"\n"` eller en vald
-separator `sep`. Efter sammanfogning tas de överskottiga delarna bort. Denna
+separator `sep`. Efter sammanfogning tas de överflödiga delarna bort. Denna
 metod förenklar dokumentet genom att reducera upprepade dokumentdelar till en
 enhetlig del.
 
@@ -492,7 +522,6 @@ I följande exempel så antar vi, om inget annat anges, att det finns en instans
 `h` med dokumentdelar enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -506,7 +535,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett.\nStycke två.\nStycke tre."),
@@ -518,7 +546,6 @@ h._document_parts = [
 2. Andra förutsättningar:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -533,7 +560,6 @@ h._document_parts = [
 - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -562,7 +588,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett.<MYSEPARATOR>Stycke två.<MYSEPARATOR>Stycke tre."),
@@ -596,6 +621,10 @@ fungera enligt följande:
 | `PartType.HEADING3`  | `render_heading3`  | `render_heading2` | `render_heading1` | `render_paragraph`  |
 | `PartType.PARAGRAPH` | `render_paragraph` |                   |                   | (`raise Exception`) |
 | `PartType.CODEBLOCK` | `render_codeblock` |                   |                   | `render_paragraph`  |
+
+Använd först `hasattr` för att kontrollera om en underklass innehåller en
+specifik metod. Om så är fallet, använd sedan `getattr` för att dynamiskt anropa
+denna metod.
 
 - Signatur: `render(text) -> str`
 - Utskrift: Inget!
@@ -762,7 +791,7 @@ Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för
 - Utskrift: Inget!
 - Returvärde: Texten i `text` efter att den behandlats med `escape_html`-metoden
   inom en `<h1>`-tagg. Alla förekomster av `\n` i texten är dessutom utbytta mot
-  `<br/>` (förutom för `codeblock`).
+  `<br>` (förutom för `codeblock`).
 
 #### Exempel
 
@@ -779,17 +808,17 @@ Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för
 3. Anrop: `render_heading1("In a world where code flows like a fountain,\nPython reigns, a versatile mountain.")`
 
    - Utskrift: Inget
-   - Returvärde: `"<h1>In a world where code flows like a fountain,<br/>Python reigns, a versatile mountain.</h1>"`
+   - Returvärde: `"<h1>In a world where code flows like a fountain,<br>Python reigns, a versatile mountain.</h1>"`
 
-4. Anrop: `render_heading1("<strong>liquor</strong")`
+4. Anrop: `render_heading1("<strong>liquor</strong>")`
 
    - Utskrift: Inget
-   - Returvärde: `"<h1>&lt;strong&gt;liquor&lt;/strong</h1>"`
+   - Returvärde: `"<h1>&lt;strong&gt;liquor&lt;/strong&gt;</h1>"`
 
 5. Anrop: `render_codeblock("<marquee>\n  <blink>\n    <h1>WELCOME TO MY WEBSITE</h1>\n    1990's called, they want their marquee back.\n  </blink>\n</marquee>")`
 
    - Utskrift: Inget
-   - Returvärde: `"&lt;marquee&gt;\n  &lt;blink&gt;\n    &lt;h1&gt;WELCOME TO MY WEBSITE&lt;/h1&gt;\n    1990&#39;s called, they want their marquee back.\n  &lt;/blink&gt;\n&lt;/marquee&gt;"`
+   - Returvärde: `"<pre><code>&lt;marquee&gt;\n  &lt;blink&gt;\n    &lt;h1&gt;WELCOME TO MY WEBSITE&lt;/h1&gt;\n    1990&#39;s called, they want their marquee back.\n  &lt;/blink&gt;\n&lt;/marquee&gt;</code></pre>"`
 
 ### Exempel
 
@@ -846,9 +875,7 @@ Metoderna ska utnyttja följande Markdown-syntax:
   efter `codeblock`-texten.
 
 För `heading`s så behöver nyradstecken (`\n`) i texten ersättas med ett
-mellanslag (` `), eftersom Markdown inte stödjer rubriker över flera rader. För
-`heading`s behöver denna ersättning ske innan anropet till `escape_markdown` som
-beskrivs nedan.
+mellanslag (` `), eftersom Markdown inte stödjer rubriker över flera rader.
 
 För att hantera specifika Markdown-tecken som kan påverka formateringen (t.ex.
 backticks i ett `codeblock`), kan det vara bra att införa en metod för att
@@ -857,15 +884,8 @@ hantera dessa fall:
 ```python
 @classmethod
 def escape_markdown(cls, text):
-    # Exempel på en enkel escape-funktion, den kan behöva utökas lite men ramla
-    # inte ned i det bottenlösa hål som innebär att få denna funktion perfekt.
-    parts = text.split("`")
-    for i in range(len(parts)):
-        if i % 2 == 0:  # Utanför backticks
-            parts[i] = parts[i].replace("\\", "\\\\").replace("#", "\\#")
-        else:  # Inom backticks
-            parts[i] = parts[i].replace("`", "\\`")
-    return "`".join(parts)
+    return text.replace("\\", "\\\\").replace("`", "\\`").replace("#", "\\#")
+
 ```
 
 Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för de
@@ -873,7 +893,7 @@ Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för
 
 - Signatur: `render_heading1(text) -> str`
 - Utskrift: Inget!
-- Returvärde: `# ` sammanslaget med texten i `text` följt av nyradstecken (`\n`)
+- Returvärde: `# ` sammanslaget med texten i `text` följt två nyradstecken (`\n`)
 
 #### Exempel
 
