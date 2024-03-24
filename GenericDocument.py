@@ -51,7 +51,7 @@ class GenericDocument(ABC):
         self._document_parts[dst_index] = (old_type, sep.join(mod_list))
 
         # Remove source indexes in reverse order, forward order decrements following elements, so 1, 2 src_indices would remove index 1, 3.
-        [self._document_parts.pop(index) for index in pruned_src_indices]
+        [self._document_parts.pop(index) for index in reversed(pruned_src_indices)]
 
         return self
 

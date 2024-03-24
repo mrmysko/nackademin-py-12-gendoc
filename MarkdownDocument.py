@@ -49,7 +49,8 @@ markdown.add_codeblock('Codeblock:\n\tSome code:\n\t\tsys.exit("NAN")')
 markdown.add_paragraph("Paragraph")
 
 
-markdown.merge_consecutive(Part.HEADING1)
+# markdown.merge_consecutive(Part.HEADING1)
+markdown.merge_indices(2, 1, 6)
 
 markdown.render()
 print(markdown)
