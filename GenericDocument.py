@@ -108,74 +108,53 @@ class GenericDocument(ABC):
 
     def render(self):
 
+        self.result = ""
+
         # This is very clunky.......
         for part, line in self._document_parts:
 
             # Heading 1 prio
             if part == Part.HEADING1:
                 if hasattr(self, "render_heading1"):
-                    # idc, a rendered part always end with a newline. If a document wants more, they have to add it themselves.
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading1(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_heading1(line))}'
                 else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
 
             # Heading 2 prio
             elif part == Part.HEADING2:
                 if hasattr(self, "render_heading2"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading2(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_heading2(line))}'
                 elif hasattr(self, "render_heading1"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading1(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_heading1(line))}'
                 else:
-                    self.result = f"{self.result}{getattr(self, )}"
+                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
 
             # Heading 3 prio
             elif part == Part.HEADING3:
                 if hasattr(self, "render_heading3"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading3(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_heading3(line))}'
                 elif hasattr(self, "render_heading2"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading2(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_heading2(line))}'
                 elif hasattr(self, "render_heading1"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading1(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_heading1(line))}'
                 else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
 
             # Codeblock prio
             elif part == Part.CODEBLOCK:
                 if hasattr(self, "render_codeblock"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_codeblock(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_codeblock(line))}'
                 else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
 
             # If part is something thats not been handled so far, try to render it as a paragraph. Else raise exception.
             else:
                 if hasattr(self, "render_paragraph"):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
                 else:
                     raise Exception
 
-        return self
+        return self.result
 
     @abstractmethod
     def render_paragraph(text):
