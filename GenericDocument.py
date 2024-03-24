@@ -38,6 +38,13 @@ class GenericDocument(ABC):
         if dst_index in pruned_src_indices:
             raise ValueError("dst_index in src_indices.")
 
+        if dst_index + 1 > len(self._document_parts):
+            raise ValueError(f"dst_index {dst_index} outside document.")
+
+        for index in src_indices:
+            if index + 1 > len(self._document_parts):
+                raise ValueError(f"src_index {index} outside document.")
+
         # Assign old type and line
         old_type, old_line = self._document_parts[dst_index]
         mod_list = list()

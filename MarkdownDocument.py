@@ -31,7 +31,7 @@ class MarkdownDocument(GenericDocument):
         return f'{text.replace("\n", "\n### ")}\n'
 
     def render_paragraph(self, text):
-        return f" {self.escape_markdown(text)} \n"
+        return f' {text.replace("\n", "\n ")} \n'
 
     def render_codeblock(self, text):
         return f"```\n{self.escape_markdown(text)}\n```\n"
@@ -50,7 +50,7 @@ markdown.add_paragraph("Paragraph")
 
 
 # markdown.merge_consecutive(Part.HEADING1)
-markdown.merge_indices(2, 1, 6)
+markdown.merge_indices(1, 3, 2)
 
 markdown.render()
 print(markdown)
