@@ -25,7 +25,7 @@ def test_render_small_heading3():
 def test_render_small_paragraph():
     doc = MarkdownDocument()
     doc.add_paragraph("Text")
-    expected = " Text \n\n"
+    expected = "Text\n\n"
     assert doc.render() == expected
 
 
@@ -60,7 +60,7 @@ def test_render_backtick_heading3():
 def test_render_backtick_paragraph():
     doc = MarkdownDocument()
     doc.add_paragraph("Test ` in paragraph")
-    expected = " Test \\` in paragraph \n\n"
+    expected = "Test \\` in paragraph\n\n"
     assert doc.render() == expected
 
 
@@ -95,7 +95,7 @@ def test_render_newline_heading3():
 def test_render_newline_untouched_in_paragraph():
     doc = MarkdownDocument()
     doc.add_paragraph("Test \n in paragraph")
-    expected = " Test \n in paragraph \n\n"
+    expected = "Test \n in paragraph\n\n"
     assert doc.render() == expected
 
 
@@ -152,7 +152,7 @@ def test_example_poem_serenity():
         "Gentle logic flows,\nPython's calm, a stream that grows,\nIn code, tranquility shows."
     )
 
-    expected = "# Serenity in Syntax\n\n Gentle logic flows,\nPython's calm, a stream that grows,\nIn code, tranquility shows. \n\n"
+    expected = "# Serenity in Syntax\n\nGentle logic flows,\nPython's calm, a stream that grows,\nIn code, tranquility shows.\n\n"
     assert doc.render() == expected
 
 
@@ -164,6 +164,6 @@ def test_example_multiple():
         'sky = "vast"; dreams = "deep"\necho = lambda sky, dreams: f"The {sky} holds the {dreams}"\nprint(echo(sky, dreams))'
     )
 
-    expected = '# A poetic embrace in code\n\n Created by a self-aware AI. \n\n```\nsky = "vast"; dreams = "deep"\necho = lambda sky, dreams: f"The {sky} holds the {dreams}"\nprint(echo(sky, dreams))\n```\n\n'
+    expected = '# A poetic embrace in code\n\nCreated by a self-aware AI.\n\n```\nsky = "vast"; dreams = "deep"\necho = lambda sky, dreams: f"The {sky} holds the {dreams}"\nprint(echo(sky, dreams))\n```\n\n'
 
     assert doc.render() == expected
