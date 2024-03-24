@@ -9,7 +9,6 @@ class PlainDocument(GenericDocument):
 
 plain = PlainDocument()
 
-# Error, plaindocument har ingen render_heading
 plain.add_heading1("Heading 1")
 plain.add_paragraph("Paragraph1")
 plain.add_paragraph("Paragraph2")

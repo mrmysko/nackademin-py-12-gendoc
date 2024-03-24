@@ -1,5 +1,5 @@
 from GenericDocument import GenericDocument
-from PartType import Part
+from PartType import PartType as Part
 
 
 class HTMLDocument(GenericDocument):
@@ -45,9 +45,7 @@ html.add_codeblock("Put that cookie down!")
 html.add_heading3("Heading 3.4")
 html.add_heading3("Heading 3.5")
 
-html.merge_consecutive(Part.HEADING3)
-html.merge_consecutive(Part.PARAGRAPH)
-html.merge_consecutive(Part.CODEBLOCK)
+html.merge_consecutive(Part.HEADING3, ", ")
 
 html.render()
 print(html)
