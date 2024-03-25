@@ -187,7 +187,7 @@ GenericDocument : add_paragraph(text) self
 GenericDocument : add_codeblock(text) self
 GenericDocument : merge_indices(dst_index, *src_indices, sep) self
 GenericDocument : merge_consecutive(partType) self
-GenericDocument : render(text) self
+GenericDocument : render() str
 GenericDocument : render_paragraph(text)* text
 GenericDocument : __getitem__(index) tuple
 GenericDocument : __len__(text) int
@@ -320,7 +320,7 @@ Beskrivs tidigare i dokumentet.
 för att lägga till dokumentdelar (med `add_...`-metoderna) samt ändra dem (med
 de två metoderna `merge_indices` och `merge_consecutive`).
 
-Klassen har dessutom metoden `render(text): -> text` vilken i sin tur ska anropa
+Klassen har dessutom metoden `render(): -> text` vilken i sin tur ska anropa
 metoder i underklasserna för att rendera ett dokument i ett konkret format. Med
 andra ord så anropar den metoden i sin tur metoder som inte finns i den egna
 klassen.
@@ -598,7 +598,7 @@ h._document_parts = [
 
 ### Metoden `render`
 
-Metoden `render(text) -> text` anropar renderingsmetoder i underklassen för att
+Metoden `render() -> text` anropar renderingsmetoder i underklassen för att
 skapa ett konkret dokument. Den enda metod som med säkerhet finns i
 underklasserna är `render_paragraph(text) -> text`. I övrigt skall metoden
 fungera enligt följande:
@@ -626,7 +626,7 @@ Använd först `hasattr` för att kontrollera om en underklass innehåller en
 specifik metod. Om så är fallet, använd sedan `getattr` för att dynamiskt anropa
 denna metod.
 
-- Signatur: `render(text) -> str`
+- Signatur: `render() -> str`
 - Utskrift: Inget!
 - Returvärde: `str`
 
