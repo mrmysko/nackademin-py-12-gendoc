@@ -136,7 +136,7 @@ Det är överklassen `GenericDocument` som anropar ovanstående metoder i
 underklassen och bygger upp ett totalt resultat som returneras från dess
 `render()`-metod.
 
-Det finns en prioriterad ordning för anrop dessa metoder som vi går in på
+Det finns en prioriterad ordning för anrop till dessa metoder som vi går in på
 senare. Vad det betyder är att om en metod saknas så testar överklassen en annan
 metod istället. Som minst måste `render_paragraph(text): text` implementeras då
 den är metoden som alla dokumentdelars typer till sist "faller tillbaka på".
@@ -149,8 +149,8 @@ betydelsen av några saker innan vi tittar på diagrammet:
 
 1. `<<enumeration>>` betyder att det är en [Enum][1].
 
-2. `aggregat` betyder att instanser av klassen lagras på den oifyllda diamantens
-   sida lagras i instanser av klassen på sidan med en vanlig linje. I vårt fall
+2. `aggregat` betyder att instanser av klassen på den oifyllda diamantens sida,
+   lagras i instanser av klassen på sidan med en vanlig linje. I vårt fall
    betyder det att instanser av vår enum `PartType` lagras i instanser av
    `GenericDocument`. Det är så eftersom sådana instanser ingår i det som lagras
    i `_document_parts`.
@@ -343,7 +343,7 @@ argument.
 ### Metoder för att hämta element och skriva ut längden
 
 Abstrakta klasser som ärver av ABC måste implementera __getitem__ och __len__
-antingen i den abstrakta kallsen eller den konkreta. Det är enklast att
+antingen i den abstrakta klassen eller den konkreta. Det är enklast att
 implementera båda i den här klassen enligt följande kod:
 
 ```python
@@ -502,10 +502,10 @@ h._document_parts = [
 
 ### Metoden `merge_consecutive`
 
-`merge_consecutive` tar en `PartType` och sammanfogar intilliggande, lika typer
-av dokumentdelar i en lista. Den första delen i varje grupp behålls och texten
-från de följande delarna läggs till den, separerade med `"\n"` eller en vald
-separator `sep`. Efter sammanfogning tas de överflödiga delarna bort. Denna
+`merge_consecutive` tar en `PartType` och sammanfogar intilliggande
+dokumentdelar av typen `PartType`. Den första delen i varje grupp behålls och
+texten från de följande delarna läggs till den, separerade med `"\n"` eller en
+vald separator `sep`. Efter sammanfogning tas de överflödiga delarna bort. Denna
 metod förenklar dokumentet genom att reducera upprepade dokumentdelar till en
 enhetlig del.
 
@@ -653,22 +653,21 @@ Se underklasserna som implementerar metoden.
 
 - Innan du börjar, läs igenom hela uppgiftsbeskrivningen för att förstå vad som
   förväntas och planera ditt arbete.
-- Använd ["Test-Driven Development"] (TDD) och följ "Red-Green-Refactor"-flödet.
+- Använd [Test-Driven Development][3] (TDD) och följ "Red-Green-Refactor"-flödet.
   Detta ger en strukturerad utvecklingsprocess och hjälper dig att upprätthålla
   hög kodkvalitet. Genom - att arbeta enligt TDD får du "på köpet" de minst fem
   tester per konkret underklass som uppgiften kräver.
-- Börja utveckla GenericDocument och PartType först. Dessa utgör grundstenarna i
-  din uppgiftslösning.
-- Introducera `PlainDocument, HTMLDocument, och MarkdownDocument i din
-  utvecklingsprocess för att se hur allt fungerar tillsammans.
+- Börja utveckla `GenericDocument` och `PartType` först. Dessa utgör
+  grundstenarna i din uppgiftslösning.
+- Introducera `PlainDocument`, `HTMLDocument`, och `MarkdownDocument` i din
+  utvecklingsprocess så snart du kan för att se hur allt fungerar tillsammans.
 - Gör regelbundna commits och sträva efter att skriva klara och koncisa
-  commit-meddelanden. Detta förbättrar spårbarheten i ditt projekt och
-  underlättar samarbete.
+  commit-meddelanden.
 
 ### Exempel
 
-Se underklasserna som ärver från `GenericDocument` för exempel på hur
-klass av typen `GenericDocument` kan användass.
+Se underklasserna som ärver från `GenericDocument` för exempel på hur en klass
+av typen `GenericDocument` kan användass.
 
 ## Underklassen `PlainDocument`
 
@@ -771,7 +770,7 @@ Metoderna ska utnyttja följande HTML:
 Oavsett metod så bör eventuella "HTML-tecken" i dokumentdelens text skrivas om
 så att inte _det_ tolkas som HTML (för att undvika XSS-attacker och säkerställa
 korrekt visning av texten som inte är avsedd som HTML-kod). Lägg till följande
-klassmetod till klassen och använda den för att skriva om den text som ska stå
+klassmetod till klassen och använd den för att skriva om den text som ska stå
 inom metodens HTML-taggar:
 
 ```python
@@ -791,7 +790,7 @@ Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för
 - Utskrift: Inget!
 - Returvärde: Texten i `text` efter att den behandlats med `escape_html`-metoden
   inom en `<h1>`-tagg. Alla förekomster av `\n` i texten är dessutom utbytta mot
-  `<br>` (förutom för `codeblock`).
+  `<br>` (förutom för `codeblock` där radmatningarna behålls).
 
 #### Exempel
 
@@ -954,7 +953,7 @@ print(markdown_text)  # -> # A poetic embrace in code\n\nCreated by a self-aware
 
 - Förslag på "arbetsplan" för uppgiften
     1. Läs igenom hela beskrivningen en gång innan du börjar utveckla.
-    2. Använd "Test-Driven Development" när du arbetar och följ
+    2. Använd [Test-Driven Development][3] när du arbetar och följ
        "Red-Green-Refactor"-flödet. Skriv dina tester i de filen
        uppgiftsbeskrivningen anger.
     2. Börja med `GenericDocument` och `PartType`
@@ -964,7 +963,7 @@ print(markdown_text)  # -> # A poetic embrace in code\n\nCreated by a self-aware
        en bra idé att göra färdigt en av klasserna med `Document` i namnet och
        sedan gå vidare till nästa. Arbeta "brett" och försök "gå i mål" ungefär
        samtidigt med `HTMLDocument` och `MarkdownDocument`.
-    6. Gör commit ofta! Försök ha att satsa mer på bra commit-meddelanden i
+    6. Gör commit ofta! Försök att att satsa mer på bra commit-meddelanden i
        denna uppgift. Läs igenom [How to Write a Git Commit Message][4] och
        försök följa artikelns rekommendationer.
 - Stressa inte för mycket med denna uppgift.
