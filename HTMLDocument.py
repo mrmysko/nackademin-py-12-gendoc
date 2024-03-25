@@ -37,5 +37,8 @@ class HTMLDocument(GenericDocument):
 if __name__ == "__main__":
     html = HTMLDocument()
 
+    html.add_heading1("Heading 1.1")
+    html.add_heading1("Heading 1.2")
+
     html.render()
     print(html)

@@ -110,42 +110,46 @@ class GenericDocument(ABC):
 
         self.result = ""
 
-        # This is very clunky.......
+        heading1_prio = ["render_heading1", "render_paragraph"]
+        heading2_prio = ["render_heading2", "render_heading1", "render_paragraph"]
+        heading3_prio = [
+            "render_heading3",
+            "render_heading2",
+            "render_heading1",
+            "render_paragraph",
+        ]
+        codeblock_prio = ["render_codeblock", "render_paragraph"]
+
+        # This is less clunky than before....
         for part, line in self._document_parts:
 
-            # Heading 1 prio
             if part == Part.HEADING1:
-                if hasattr(self, "render_heading1"):
-                    self.result = f'{self.result}{"".join(self.render_heading1(line))}'
-                else:
-                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
+                for prio in heading1_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
-            # Heading 2 prio
             elif part == Part.HEADING2:
-                if hasattr(self, "render_heading2"):
-                    self.result = f'{self.result}{"".join(self.render_heading2(line))}'
-                elif hasattr(self, "render_heading1"):
-                    self.result = f'{self.result}{"".join(self.render_heading1(line))}'
-                else:
-                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
+                for prio in heading2_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
-            # Heading 3 prio
             elif part == Part.HEADING3:
-                if hasattr(self, "render_heading3"):
-                    self.result = f'{self.result}{"".join(self.render_heading3(line))}'
-                elif hasattr(self, "render_heading2"):
-                    self.result = f'{self.result}{"".join(self.render_heading2(line))}'
-                elif hasattr(self, "render_heading1"):
-                    self.result = f'{self.result}{"".join(self.render_heading1(line))}'
-                else:
-                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
+                for prio in heading3_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
-            # Codeblock prio
             elif part == Part.CODEBLOCK:
-                if hasattr(self, "render_codeblock"):
-                    self.result = f'{self.result}{"".join(self.render_codeblock(line))}'
-                else:
-                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
+                for prio in codeblock_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
             # If part is something thats not been handled so far, try to render it as a paragraph. Else raise exception.
             else:
