@@ -78,8 +78,8 @@ format. Det vet med andra ord inget om filformat som HTML eller Markdown.
 
 ### `PartType` beskriver en dokumentdels typ
 
-Varje del i dokumentet som `GenericType` modellerar är av en viss typ och har en
-tillhörande text.
+Varje del i dokumentet som `GenericDocument` modellerar är av en viss typ och
+har en tillhörande text.
 
 Vi skulle kunna representera typen med en siffra eller en sträng, men det blir
 mer läsbart och lättare att underhålla med en "enumeration". Skapa en `Enum` som
@@ -276,7 +276,7 @@ sammanfattade i nedanstående tabell.
             <td>Minst fem tester</td>
         </tr>
         <tr>
-            <td><code>PlainDocument.py<<code></td>
+            <td><code>PlainDocument.py<code></td>
             <td><code>PlainDocument</code></td>
             <td><code>GenericDocument</code></td>
             <td>Konkret klass som ärver från <code>GenericDocument</code></td>
