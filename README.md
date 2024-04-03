@@ -79,8 +79,8 @@ format. Det vet med andra ord inget om filformat som HTML eller Markdown.
 
 ### `PartType` beskriver en dokumentdels typ
 
-Varje del i dokumentet som `GenericType` modellerar är av en viss typ och har en
-tillhörande text.
+Varje del i dokumentet som `GenericDocument` modellerar är av en viss typ och
+har en tillhörande text.
 
 Vi skulle kunna representera typen med en siffra eller en sträng, men det blir
 mer läsbart och lättare att underhålla med en "enumeration". Skapa en `Enum` som
@@ -121,25 +121,26 @@ I vår lösning ska vi stödja tre format i följande klasser: `HTMLDocument`,
 med en tom rad utan något speciellt som indikerar rubrik eller liknande.
 
 Alla underklasser till `GenericDocument` **måste** som minst implementera
-metoden `render_paragraph(text): text`. Den metoden anropar överklassen för att
-omvandla stycken (paragraph) till det format som klassen representerar.
+metoden `render_paragraph(self, text): str`. Den metoden anropar överklassen för
+att omvandla stycken (paragraph) till det format som klassen representerar.
 
 Underklasserna kan också implementera följande metoder som anropas för att
 omvandla motsvarande del till klassens format:
 
-- `render_heading1(text): text`
-- `render_heading2(text): text`
-- `render_heading3(text): text`
-- `render_codeblock(text): text`
+- `render_heading1(self, text): str`
+- `render_heading2(self, text): str`
+- `render_heading3(self, text): str`
+- `render_codeblock(self, text): str`
 
 Det är överklassen `GenericDocument` som anropar ovanstående metoder i
 underklassen och bygger upp ett totalt resultat som returneras från dess
-`render()`-metod.
+`render(self): str`-metod.
 
 Det finns en prioriterad ordning för anrop till dessa metoder som vi går in på
 senare. Vad det betyder är att om en metod saknas så testar överklassen en annan
-metod istället. Som minst måste `render_paragraph(text): text` implementeras då
-den är metoden som alla dokumentdelars typer till sist "faller tillbaka på".
+metod istället. Som minst måste `render_paragraph(self, text): str`
+implementeras då den är metoden som alla dokumentdelars typer till sist "faller
+tillbaka på".
 
 ### Klassdiagram
 
@@ -179,39 +180,39 @@ classDiagram
 class GenericDocument
 <<abstract>> GenericDocument
 GenericDocument : -list _document_parts
-GenericDocument : __init__()
-GenericDocument : add_heading1(text) self
-GenericDocument : add_heading2(text) self
-GenericDocument : add_heading3(text) self
-GenericDocument : add_paragraph(text) self
-GenericDocument : add_codeblock(text) self
-GenericDocument : merge_indices(dst_index, *src_indices, sep) self
-GenericDocument : merge_consecutive(partType) self
-GenericDocument : render() str
-GenericDocument : render_paragraph(text)* text
-GenericDocument : __getitem__(index) tuple
-GenericDocument : __len__(text) int
+GenericDocument : __init__(self)
+GenericDocument : add_heading1(self, text) Self
+GenericDocument : add_heading2(self, text) Self
+GenericDocument : add_heading3(self, text) Self
+GenericDocument : add_paragraph(self, text) Self
+GenericDocument : add_codeblock(self, text) Self
+GenericDocument : merge_indices(self, dst_index, *src_indices, sep) self
+GenericDocument : merge_consecutive(self, partType) self
+GenericDocument : render(self) str
+GenericDocument : render_paragraph(self, text)* str
+GenericDocument : __getitem__(self, index) tuple
+GenericDocument : __len__(self, text) int
 
 
 class HTMLDocument
 GenericDocument <|-- HTMLDocument
-HTMLDocument : render_heading1(text) text
-HTMLDocument : render_heading2(text) text
-HTMLDocument : render_heading3(text) text
-HTMLDocument : render_paragraph(text) text
-HTMLDocument : render_codeblock(text) text
+HTMLDocument : render_heading1(self, text) str
+HTMLDocument : render_heading2(self, text) str
+HTMLDocument : render_heading3(self, text) str
+HTMLDocument : render_paragraph(self, text) str
+HTMLDocument : render_codeblock(self, text) str
 
 class MarkdownDocument
 GenericDocument <|-- MarkdownDocument
-MarkdownDocument : render_heading1(text) text
-MarkdownDocument : render_heading2(text) text
-MarkdownDocument : render_heading3(text) text
-MarkdownDocument : render_paragraph(text) text
-MarkdownDocument : render_codeblock(text) text
+MarkdownDocument : render_heading1(self, text) str
+MarkdownDocument : render_heading2(self, text) str
+MarkdownDocument : render_heading3(self, text) str
+MarkdownDocument : render_paragraph(self, text) str
+MarkdownDocument : render_codeblock(self, text) str
 
 class PlainDocument
 GenericDocument <|-- PlainDocument
-PlainDocument : render_paragraph(text) text
+PlainDocument : render_paragraph(self, text) str
 
 class PartType {
 <<enumeration>>
@@ -277,7 +278,7 @@ sammanfattade i nedanstående tabell.
             <td>Minst fem tester</td>
         </tr>
         <tr>
-            <td><code>PlainDocument.py<<code></td>
+            <td><code>PlainDocument.py<code></td>
             <td><code>PlainDocument</code></td>
             <td><code>GenericDocument</code></td>
             <td>Konkret klass som ärver från <code>GenericDocument</code></td>
@@ -320,7 +321,7 @@ Beskrivs tidigare i dokumentet.
 för att lägga till dokumentdelar (med `add_...`-metoderna) samt ändra dem (med
 de två metoderna `merge_indices` och `merge_consecutive`).
 
-Klassen har dessutom metoden `render(): -> text` vilken i sin tur ska anropa
+Klassen har dessutom metoden `render(self): -> str` vilken i sin tur ska anropa
 metoder i underklasserna för att rendera ett dokument i ett konkret format. Med
 andra ord så anropar den metoden i sin tur metoder som inte finns i den egna
 klassen.
@@ -336,7 +337,7 @@ vilken sorts del det är.
 Konstruktorn skapar en ny tom lista för dokumentets delar. Den tar inga
 argument.
 
-- Konstruktorns signatur: `__init__() -> None`
+- Konstruktorns signatur: `__init__(self) -> None`
 - Utskrift: Inget
 - Returvärde: Inget
 
@@ -365,7 +366,7 @@ ett "fluent api" och ska därför returnera `self`.
 Följande beskrivning för `add_heading1` fungerar på motsvarande sätt för de
 övriga fem metoderna.
 
-- Signatur: `add_heading1(text: str) -> None`
+- Signatur: `add_heading1(self, text: str) -> None`
 - Sidoeffekt: Tupeln `(PartType.HEADING1, text)` lägg tills sist i
   `_document_parts`
 - Utskrift: Inget!
@@ -410,7 +411,7 @@ bort.
 
 Om `dst_index` angetts i `src_indices` kastas ett `ValueError`.
 
-- Signatur: `merge_indices(dst_index: int, *src_indices, sep = "\n") -> Self`
+- Signatur: `merge_indices(self, dst_index: int, *src_indices, sep = "\n") -> Self`
 - Sidoeffekt: Dokumentdelarna på källindexen (`src_indices`) raderas efter att
   deras text lagts till målindexets (`dst_index`) dokumentdels text, med en
   separator (`sep`) mellan textdelarna i ordningen lägst till högst index.
@@ -509,7 +510,7 @@ vald separator `sep`. Efter sammanfogning tas de överflödiga delarna bort. Den
 metod förenklar dokumentet genom att reducera upprepade dokumentdelar till en
 enhetlig del.
 
-- Signatur: `merge_consecutive(partType: PartType, sep: str = "\n") -> self`
+- Signatur: `merge_consecutive(self, partType: PartType, sep: str = "\n") -> Self`
 - Sidoeffekt: Det finns inga repeterande dokumentdelar av typen `partType`
   eftersom de sammanfogats så att deras textinnehåll är i den första med en
   separator (`sep`) mellan textdelarna.
@@ -598,9 +599,9 @@ h._document_parts = [
 
 ### Metoden `render`
 
-Metoden `render() -> text` anropar renderingsmetoder i underklassen för att
+Metoden `render(self) -> str` anropar renderingsmetoder i underklassen för att
 skapa ett konkret dokument. Den enda metod som med säkerhet finns i
-underklasserna är `render_paragraph(text) -> text`. I övrigt skall metoden
+underklasserna är `render_paragraph(self, text) -> str`. I övrigt skall metoden
 fungera enligt följande:
 
 1. Börja med att skapa en tom sträng i en variabel enligt `result = ""`
@@ -626,7 +627,7 @@ Använd först `hasattr` för att kontrollera om en underklass innehåller en
 specifik metod. Om så är fallet, använd sedan `getattr` för att dynamiskt anropa
 denna metod.
 
-- Signatur: `render() -> str`
+- Signatur: `render(self) -> str`
 - Utskrift: Inget!
 - Returvärde: `str`
 
@@ -641,7 +642,7 @@ gjort det så kommer vi bara att kunna instansiera underklasser till
 `GenericDocument` som implementerar metoden.
 
 - "Annottation": `@abstractmethod`
-- Signatur: `render_paragraph(text) -> str`
+- Signatur: `render_paragraph(self, text) -> str`
 - Utskrift: Inget!
 - Returvärde: `str`
 
@@ -687,7 +688,7 @@ någon roll i kombination med att överklassen faller tillbaka på att anropa
 
 Vad den ska göra.
 
-- Signatur: `render_paragraph(text) -> str`
+- Signatur: `render_paragraph(self, text) -> str`
 - Utskrift: Inget!
 - Returvärde: Texten i `text` med två radmatningar (`"\n\n"`) tillagda på slutet
   för att generera en tom rad mellan varje dokumentdel.
@@ -890,7 +891,7 @@ def escape_markdown(cls, text):
 Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för de
 övriga fem metoderna.
 
-- Signatur: `render_heading1(text) -> str`
+- Signatur: `render_heading1(self, text) -> str`
 - Utskrift: Inget!
 - Returvärde: `# ` sammanslaget med texten i `text` följt två nyradstecken (`\n`)
 
