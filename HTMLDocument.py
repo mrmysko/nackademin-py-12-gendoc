@@ -1,9 +1,7 @@
 from GenericDocument import GenericDocument
-from PartType import PartType as Part
 
 
 class HTMLDocument(GenericDocument):
-
     @classmethod
     def escape_html(cls, text):
         return (

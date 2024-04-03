@@ -1,8 +1,6 @@
 from PartType import PartType as Part
 from abc import ABC, abstractmethod
 
-# Todo - Refactor everything...
-
 
 class GenericDocument(ABC):
     def __init__(self):
@@ -33,7 +31,6 @@ class GenericDocument(ABC):
         return self
 
     def merge_indices(self, dst_index, *src_indices, sep="\n"):
-
         pruned_src_indices = sorted(set(src_indices))
         if dst_index in pruned_src_indices:
             raise ValueError("dst_index in src_indices.")
@@ -63,7 +60,6 @@ class GenericDocument(ABC):
         return self
 
     def merge_consecutive(self, partType, sep="\n"):
-
         mod_list = list()
         part_index = list()
 
@@ -107,7 +103,6 @@ class GenericDocument(ABC):
         return self
 
     def render(self):
-
         self.result = ""
 
         heading1_prio = ["render_heading1", "render_paragraph"]
@@ -122,7 +117,6 @@ class GenericDocument(ABC):
 
         # This is less clunky than before....
         for part, line in self._document_parts:
-
             if part == Part.HEADING1:
                 for prio in heading1_prio:
                     if hasattr(self, prio):

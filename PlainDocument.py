@@ -2,7 +2,6 @@ from GenericDocument import GenericDocument
 
 
 class PlainDocument(GenericDocument):
-
     def render_paragraph(self, text):
         return f"{text}\n\n"
 

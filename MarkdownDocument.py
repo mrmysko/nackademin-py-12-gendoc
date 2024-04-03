@@ -1,9 +1,7 @@
 from GenericDocument import GenericDocument
-from PartType import PartType as Part
 
 
 class MarkdownDocument(GenericDocument):
-
     @classmethod
     def escape_markdown(cls, text):
         return text.replace("\\", "\\\\").replace("`", "\\`").replace("#", "\\#")
@@ -18,14 +16,13 @@ class MarkdownDocument(GenericDocument):
         return f'### {self.escape_markdown(text).replace("\n", " ")}\n\n'
 
     def render_paragraph(self, text):
-        return f'{self.escape_markdown(text)}\n\n'
+        return f"{self.escape_markdown(text)}\n\n"
 
     def render_codeblock(self, text):
         return f"```\n{text.replace("`", "\\`")}\n```\n\n"
 
 
 if __name__ == "__main__":
-
     markdown = MarkdownDocument()
 
     markdown.add_heading1("Heading 1")
