@@ -1,7 +1,5 @@
-from PartType import Part
+from PartType import PartType as Part
 from abc import ABC, abstractmethod
-
-# Todo - Refactor everything...
 
 
 class GenericDocument(ABC):
@@ -33,25 +31,35 @@ class GenericDocument(ABC):
         return self
 
     def merge_indices(self, dst_index, *src_indices, sep="\n"):
+        pruned_src_indices = sorted(set(src_indices))
+        if dst_index in pruned_src_indices:
+            raise ValueError("dst_index in src_indices.")
 
-        # 6 lines for this? Yikes, refactor...
+        if dst_index + 1 > len(self._document_parts):
+            raise ValueError(f"dst_index {dst_index} outside document.")
+
+        for index in src_indices:
+            if index + 1 > len(self._document_parts):
+                raise ValueError(f"src_index {index} outside document.")
+
         # Assign old type and line
         old_type, old_line = self._document_parts[dst_index]
         mod_list = list()
         mod_list.append(old_line)
         # Add document lines to temporary list.
-        mod_list.extend([self._document_parts[index][1] for index in src_indices])
+        mod_list.extend(
+            [self._document_parts[index][1] for index in pruned_src_indices]
+        )
 
         # Join list elements and add at old index.
         self._document_parts[dst_index] = (old_type, sep.join(mod_list))
 
         # Remove source indexes in reverse order, forward order decrements following elements, so 1, 2 src_indices would remove index 1, 3.
-        [self._document_parts.pop(index) for index in reversed(src_indices)]
+        [self._document_parts.pop(index) for index in reversed(pruned_src_indices)]
 
         return self
 
-    def merge_consecutive(self, partType):
-
+    def merge_consecutive(self, partType, sep="\n"):
         mod_list = list()
         part_index = list()
 
@@ -70,7 +78,7 @@ class GenericDocument(ABC):
             # Commit to document and reset if part is not correct type and mod_list is not empty.
             elif mod_list:
                 # Add the appended line at correct index.
-                self._document_parts[part_index[0]] = (partType, "\n".join(mod_list))
+                self._document_parts[part_index[0]] = (partType, sep.join(mod_list))
                 # print(f"INSERTED TUPLE: {self._document_parts[part_index[0]]}")
 
                 # Set merged lines to None, removing them in the loop creates issues with indexing.
@@ -83,7 +91,7 @@ class GenericDocument(ABC):
 
         # If part is partType on the last iteration the last append wont happen, so need to run it once outside the loop.
         if mod_list:
-            self._document_parts[part_index[0]] = (partType, "\n".join(mod_list))
+            self._document_parts[part_index[0]] = (partType, sep.join(mod_list))
             for index in part_index[1:]:
                 self._document_parts[index] = None
 
@@ -95,72 +103,52 @@ class GenericDocument(ABC):
         return self
 
     def render(self):
+        self.result = ""
 
-        # This is very clunky.......
+        heading1_prio = ["render_heading1", "render_paragraph"]
+        heading2_prio = ["render_heading2", "render_heading1", "render_paragraph"]
+        heading3_prio = [
+            "render_heading3",
+            "render_heading2",
+            "render_heading1",
+            "render_paragraph",
+        ]
+        codeblock_prio = ["render_codeblock", "render_paragraph"]
+
+        # This is less clunky than before....
         for part, line in self._document_parts:
-
-            # Heading 1 prio
             if part == Part.HEADING1:
-                if getattr(self, "render_heading1", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading1(line))}\n'
-                    )
-                else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                for prio in heading1_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
-            # Heading 2 prio
             elif part == Part.HEADING2:
-                if getattr(self, "render_heading2", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading2(line))}\n'
-                    )
-                elif getattr(self, "render_heading1", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading1(line))}\n'
-                    )
-                else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                for prio in heading2_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
-            # Heading 3 prio
             elif part == Part.HEADING3:
-                if getattr(self, "render_heading3", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading3(line))}\n'
-                    )
-                elif getattr(self, "render_heading2", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading2(line))}\n'
-                    )
-                elif getattr(self, "render_heading1", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_heading1(line))}\n'
-                    )
-                else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                for prio in heading3_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
-            # Codeblock prio
             elif part == Part.CODEBLOCK:
-                if getattr(self, "render_codeblock", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_codeblock(line))}\n'
-                    )
-                else:
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                for prio in codeblock_prio:
+                    if hasattr(self, prio):
+                        func = getattr(self, prio)
+                        self.result = f'{self.result}{"".join(func(line))}'
+                        break
 
             # If part is something thats not been handled so far, try to render it as a paragraph. Else raise exception.
             else:
-                if getattr(self, "render_paragraph", None):
-                    self.result = (
-                        f'{self.result}{"".join(self.render_paragraph(line))}\n'
-                    )
+                if hasattr(self, "render_paragraph"):
+                    self.result = f'{self.result}{"".join(self.render_paragraph(line))}'
                 else:
                     raise Exception
 

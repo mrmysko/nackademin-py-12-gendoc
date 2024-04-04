@@ -1,3 +1,4 @@
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/aV_52efI)
 # Uppgift 12 - Skapa dokument i olika format
 
 # Syfte
@@ -17,9 +18,8 @@ Syftet med denna uppgift är flerfaldigt:
 
 - Mental förberedelse. Även om detta är en av de större uppgifterna i mängden
   text i beskrivningen och i antal filer, så är det inte nödvändigtvis den
-  svåraste. Tänk positivt och var tålmodig. Uppgiften är en chans att växa inom
-  programmering. Ta det steg för steg och dela upp arbetet i hanterbara delar.
-- Repetera grunderna i Python-programmering för att säkerställa en solid grund.
+  svåraste. Tänk positivt och var tålmodig. Ta det steg för steg och dela upp
+  arbetet i hanterbara delar.
 - Lär dig hur virtuella miljöer fungerar och hur de används för
   projektberoenden.
 - Läs igenom dokumentationen för pytest.
@@ -27,10 +27,7 @@ Syftet med denna uppgift är flerfaldigt:
   ett rekommenderat sätt att arbeta med uppgiften.
 - Läs på om hur klasser, arv, abstrakta klasser, abstrakta metoder och
   klassmetoder fungerar i Python.
-- Bekanta dig med `getattr`-funktionen som kan användas till att undersöka om
-  ett objekt har ett visst attribut eller en metod. I uppgiften så kommer
-  överklassen att behöva undersöka om en del namngivna funktioner finns i
-  underklassen.
+
 
 # Beskrivning
 
@@ -82,8 +79,8 @@ format. Det vet med andra ord inget om filformat som HTML eller Markdown.
 
 ### `PartType` beskriver en dokumentdels typ
 
-Varje del i dokumentet som `GenericType` modellerar är av en viss typ och har en
-tillhörande text.
+Varje del i dokumentet som `GenericDocument` modellerar är av en viss typ och
+har en tillhörande text.
 
 Vi skulle kunna representera typen med en siffra eller en sträng, men det blir
 mer läsbart och lättare att underhålla med en "enumeration". Skapa en `Enum` som
@@ -124,25 +121,26 @@ I vår lösning ska vi stödja tre format i följande klasser: `HTMLDocument`,
 med en tom rad utan något speciellt som indikerar rubrik eller liknande.
 
 Alla underklasser till `GenericDocument` **måste** som minst implementera
-metoden `render_paragraph(text): text`. Den metoden anropar överklassen för att
-omvandla stycken (paragraph) till det format som klassen representerar.
+metoden `render_paragraph(self, text): str`. Den metoden anropar överklassen för
+att omvandla stycken (paragraph) till det format som klassen representerar.
 
 Underklasserna kan också implementera följande metoder som anropas för att
 omvandla motsvarande del till klassens format:
 
-- `render_heading1(text): text`
-- `render_heading2(text): text`
-- `render_heading3(text): text`
-- `render_codeblock(text): text`
+- `render_heading1(self, text): str`
+- `render_heading2(self, text): str`
+- `render_heading3(self, text): str`
+- `render_codeblock(self, text): str`
 
 Det är överklassen `GenericDocument` som anropar ovanstående metoder i
 underklassen och bygger upp ett totalt resultat som returneras från dess
-`render()`-metod.
+`render(self): str`-metod.
 
-Det finns en prioriterad ordning för anrop dessa metoder som vi går in på
+Det finns en prioriterad ordning för anrop till dessa metoder som vi går in på
 senare. Vad det betyder är att om en metod saknas så testar överklassen en annan
-metod istället. Som minst måste `render_paragraph(text): text` implementeras då
-den är metoden som alla dokumentdelars typer till sist "faller tillbaka på".
+metod istället. Som minst måste `render_paragraph(self, text): str`
+implementeras då den är metoden som alla dokumentdelars typer till sist "faller
+tillbaka på".
 
 ### Klassdiagram
 
@@ -152,8 +150,8 @@ betydelsen av några saker innan vi tittar på diagrammet:
 
 1. `<<enumeration>>` betyder att det är en [Enum][1].
 
-2. `aggregat` betyder att instanser av klassen lagras på den oifyllda diamantens
-   sida lagras i instanser av klassen på sidan med en vanlig linje. I vårt fall
+2. `aggregat` betyder att instanser av klassen på den oifyllda diamantens sida,
+   lagras i instanser av klassen på sidan med en vanlig linje. I vårt fall
    betyder det att instanser av vår enum `PartType` lagras i instanser av
    `GenericDocument`. Det är så eftersom sådana instanser ingår i det som lagras
    i `_document_parts`.
@@ -181,38 +179,40 @@ classDiagram
 
 class GenericDocument
 <<abstract>> GenericDocument
-GenericDocument : -collections.Sequence _document_parts
-GenericDocument : __init__()
-GenericDocument : add_heading1(text) self
-GenericDocument : add_heading2(text) self
-GenericDocument : add_heading3(text) self
-GenericDocument : add_paragraph(text) self
-GenericDocument : add_codeblock(text) self
-GenericDocument : merge_indices(dst_index, *src_indices, sep) self
-GenericDocument : merge_consecutive(partType) self
-GenericDocument : render(text) self
-GenericDocument : render_paragraph(text)* text
+GenericDocument : -list _document_parts
+GenericDocument : __init__(self)
+GenericDocument : add_heading1(self, text) Self
+GenericDocument : add_heading2(self, text) Self
+GenericDocument : add_heading3(self, text) Self
+GenericDocument : add_paragraph(self, text) Self
+GenericDocument : add_codeblock(self, text) Self
+GenericDocument : merge_indices(self, dst_index, *src_indices, sep) self
+GenericDocument : merge_consecutive(self, partType) self
+GenericDocument : render(self) str
+GenericDocument : render_paragraph(self, text)* str
+GenericDocument : __getitem__(self, index) tuple
+GenericDocument : __len__(self, text) int
 
 
 class HTMLDocument
 GenericDocument <|-- HTMLDocument
-HTMLDocument : render_paragraph(text) text
-HTMLDocument : render_heading1(text) text
-HTMLDocument : render_heading2(text) text
-HTMLDocument : render_heading3(text) text
-HTMLDocument : render_codeblock(text) text
+HTMLDocument : render_heading1(self, text) str
+HTMLDocument : render_heading2(self, text) str
+HTMLDocument : render_heading3(self, text) str
+HTMLDocument : render_paragraph(self, text) str
+HTMLDocument : render_codeblock(self, text) str
 
 class MarkdownDocument
 GenericDocument <|-- MarkdownDocument
-MarkdownDocument : render_paragraph(text) text
-MarkdownDocument : render_heading1(text) text
-MarkdownDocument : render_heading2(text) text
-MarkdownDocument : render_heading3(text) text
-MarkdownDocument : render_codeblock(text) text
+MarkdownDocument : render_heading1(self, text) str
+MarkdownDocument : render_heading2(self, text) str
+MarkdownDocument : render_heading3(self, text) str
+MarkdownDocument : render_paragraph(self, text) str
+MarkdownDocument : render_codeblock(self, text) str
 
 class PlainDocument
 GenericDocument <|-- PlainDocument
-PlainDocument : render_paragraph(text) text
+PlainDocument : render_paragraph(self, text) str
 
 class PartType {
 <<enumeration>>
@@ -278,7 +278,7 @@ sammanfattade i nedanstående tabell.
             <td>Minst fem tester</td>
         </tr>
         <tr>
-            <td><code>PlainDocument.py<<code></td>
+            <td><code>PlainDocument.py<code></td>
             <td><code>PlainDocument</code></td>
             <td><code>GenericDocument</code></td>
             <td>Konkret klass som ärver från <code>GenericDocument</code></td>
@@ -321,7 +321,7 @@ Beskrivs tidigare i dokumentet.
 för att lägga till dokumentdelar (med `add_...`-metoderna) samt ändra dem (med
 de två metoderna `merge_indices` och `merge_consecutive`).
 
-Klassen har dessutom metoden `render(text): -> text` vilken i sin tur ska anropa
+Klassen har dessutom metoden `render(self): -> str` vilken i sin tur ska anropa
 metoder i underklasserna för att rendera ett dokument i ett konkret format. Med
 andra ord så anropar den metoden i sin tur metoder som inte finns i den egna
 klassen.
@@ -337,9 +337,23 @@ vilken sorts del det är.
 Konstruktorn skapar en ny tom lista för dokumentets delar. Den tar inga
 argument.
 
-- Konstruktorns signatur: `__init__() -> None`
+- Konstruktorns signatur: `__init__(self) -> None`
 - Utskrift: Inget
 - Returvärde: Inget
+
+### Metoder för att hämta element och skriva ut längden
+
+Abstrakta klasser som ärver av ABC måste implementera __getitem__ och __len__
+antingen i den abstrakta klassen eller den konkreta. Det är enklast att
+implementera båda i den här klassen enligt följande kod:
+
+```python
+    def __getitem__(self, index):
+        return self._document_parts[index]
+
+    def __len__(self):
+        return len(self._document_parts)
+```
 
 ### Metoderna `add_heading[1..3]`, `add_paragraph` och `add_codeblock`
 
@@ -352,7 +366,7 @@ ett "fluent api" och ska därför returnera `self`.
 Följande beskrivning för `add_heading1` fungerar på motsvarande sätt för de
 övriga fem metoderna.
 
-- Signatur: `add_heading1(text: str) -> None`
+- Signatur: `add_heading1(self, text: str) -> None`
 - Sidoeffekt: Tupeln `(PartType.HEADING1, text)` lägg tills sist i
   `_document_parts`
 - Utskrift: Inget!
@@ -363,7 +377,7 @@ Följande beskrivning för `add_heading1` fungerar på motsvarande sätt för de
 1. Anrop: `add_heading1("Fibonacci")`
 
    - Utskrift: Inget!
-   - Sidoeffekt: Tupeln `(PartType.HEADING1, text)` lägg tills sist i
+   - Sidoeffekt: Tupeln `(PartType.HEADING1, "Fibonacci")` lägg tills sist i
      `_document_parts`
    - Returvärde: `self`
 
@@ -383,18 +397,24 @@ Följande beskrivning för `add_heading1` fungerar på motsvarande sätt för de
 
 ### Metoden `merge_indices`
 
-`merge_indices` används för att kombinera texten från valda dokumentdelar
-baserat på deras index. Metoden tar ett destinationsindex (`dst_index`) och ett
-eller flera källindex (`src_indices`) som argument. Texten från dokumentdelarna
-vid källindexen läggs till texten för dokumentdelen vid destinationsindexet, med
-varje textdel separerad av en valfri separator `sep`, som standard är `"\n"`.
-Dokumentdelen vid destinationsindexet behåller sin ursprungliga typ, medan de
-övriga specificerade dokumentdelarna tas bort efter sammanfogningen.
+Metoden `merge_indices` används för att "sammanfoga" text i dokumentdelarna vars
+index finns i `src_indices` till texten i dokumentdelen vars index finns angivet
+i `dst_index`. Mellan varje textdel finns en `sep`arator vilken är `\n` om inget
+annat anges.
 
-- Signatur: `merge_indices(dst_index: int, *src_indices, sep = "\n") -> Self`
+Efter textöverföringen tas dokumentdelarna angivna i `src_indices` bort.
+Dokumentdelen i destinationen behåller sin typ och får bara mer text.
+
+Oavsett ordningen som indexen i `src_indices` angetts så görs sammanfogningen
+från lägst till högst index. Om `src_indices` innehåller dubletter tas dessa
+bort.
+
+Om `dst_index` angetts i `src_indices` kastas ett `ValueError`.
+
+- Signatur: `merge_indices(self, dst_index: int, *src_indices, sep = "\n") -> Self`
 - Sidoeffekt: Dokumentdelarna på källindexen (`src_indices`) raderas efter att
   deras text lagts till målindexets (`dst_index`) dokumentdels text, med en
-  separator (`sep`) mellan textdelarna.
+  separator (`sep`) mellan textdelarna i ordningen lägst till högst index.
 - Utskrift: Inget!
 - Returvärde: `self`
 
@@ -404,7 +424,6 @@ I följande exempel så antar vi, om inget annat anges, att det finns en instans
 `h` med dokumentdelar enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -418,7 +437,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett.\nStycke två."),
@@ -433,7 +451,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik\nStycke ett."),
     (PartType.PARAGRAPH, "Stycke två."),
@@ -448,7 +465,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik\nStycke ett.\nStycke två.\nStycke tre.")
 ]
@@ -456,12 +472,23 @@ h._document_parts = [
 
 - Returvärde: `self`
 
-4. Anrop: `h.merge_indices(0,1,2,3,sep="<MYSEPARATOR>")`
+4. Anrop: `h.merge_indices(0,2,3,1)`
    - Utskrift: Inget!
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
+h._document_parts = [
+    (PartType.HEADING1, "Rubrik\nStycke ett.\nStycke två.\nStycke tre.")
+]
+```
 
+- Returvärde: `self`
+
+5. Anrop: `h.merge_indices(0,1,2,3,sep="<MYSEPARATOR>")`
+   - Utskrift: Inget!
+   - Sidoeffekt: Uppdaterad `_document_parts` enligt:
+
+```python
 h._document_parts = [
     (PartType.HEADING1, "Rubrik<MYSEPARATOR>Stycke ett.<MYSEPARATOR>Stycke två.<MYSEPARATOR>Stycke tre.")
 ]
@@ -469,16 +496,21 @@ h._document_parts = [
 
 - Returvärde: `self`
 
+6. Anrop: `h.merge_indices(1,1,2)`
+   - Undantag kastas!
+   - Undantagstyp: `ValueError`
+
+
 ### Metoden `merge_consecutive`
 
-`merge_consecutive` tar en `PartType` och sammanfogar intilliggande, lika typer
-av dokumentdelar i en lista. Den första delen i varje grupp behålls och texten
-från de följande delarna läggs till den, separerade med `"\n"` eller en vald
-separator `sep`. Efter sammanfogning tas de överskottiga delarna bort. Denna
+`merge_consecutive` tar en `PartType` och sammanfogar intilliggande
+dokumentdelar av typen `PartType`. Den första delen i varje grupp behålls och
+texten från de följande delarna läggs till den, separerade med `"\n"` eller en
+vald separator `sep`. Efter sammanfogning tas de överflödiga delarna bort. Denna
 metod förenklar dokumentet genom att reducera upprepade dokumentdelar till en
 enhetlig del.
 
-- Signatur: `merge_consecutive(partType: PartType, sep: str = "\n") -> self`
+- Signatur: `merge_consecutive(self, partType: PartType, sep: str = "\n") -> Self`
 - Sidoeffekt: Det finns inga repeterande dokumentdelar av typen `partType`
   eftersom de sammanfogats så att deras textinnehåll är i den första med en
   separator (`sep`) mellan textdelarna.
@@ -491,7 +523,6 @@ I följande exempel så antar vi, om inget annat anges, att det finns en instans
 `h` med dokumentdelar enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -505,7 +536,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett.\nStycke två.\nStycke tre."),
@@ -517,7 +547,6 @@ h._document_parts = [
 2. Andra förutsättningar:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -532,7 +561,6 @@ h._document_parts = [
 - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett."),
@@ -561,7 +589,6 @@ h._document_parts = [
    - Sidoeffekt: Uppdaterad `_document_parts` enligt:
 
 ```python
-
 h._document_parts = [
     (PartType.HEADING1, "Rubrik"),
     (PartType.PARAGRAPH, "Stycke ett.<MYSEPARATOR>Stycke två.<MYSEPARATOR>Stycke tre."),
@@ -572,9 +599,9 @@ h._document_parts = [
 
 ### Metoden `render`
 
-Metoden `render(text) -> text` anropar renderingsmetoder i underklassen för att
+Metoden `render(self) -> str` anropar renderingsmetoder i underklassen för att
 skapa ett konkret dokument. Den enda metod som med säkerhet finns i
-underklasserna är `render_paragraph(text) -> text`. I övrigt skall metoden
+underklasserna är `render_paragraph(self, text) -> str`. I övrigt skall metoden
 fungera enligt följande:
 
 1. Börja med att skapa en tom sträng i en variabel enligt `result = ""`
@@ -596,7 +623,11 @@ fungera enligt följande:
 | `PartType.PARAGRAPH` | `render_paragraph` |                   |                   | (`raise Exception`) |
 | `PartType.CODEBLOCK` | `render_codeblock` |                   |                   | `render_paragraph`  |
 
-- Signatur: `render(text) -> str`
+Använd först `hasattr` för att kontrollera om en underklass innehåller en
+specifik metod. Om så är fallet, använd sedan `getattr` för att dynamiskt anropa
+denna metod.
+
+- Signatur: `render(self) -> str`
 - Utskrift: Inget!
 - Returvärde: `str`
 
@@ -611,7 +642,7 @@ gjort det så kommer vi bara att kunna instansiera underklasser till
 `GenericDocument` som implementerar metoden.
 
 - "Annottation": `@abstractmethod`
-- Signatur: `render_paragraph(text) -> str`
+- Signatur: `render_paragraph(self, text) -> str`
 - Utskrift: Inget!
 - Returvärde: `str`
 
@@ -623,22 +654,21 @@ Se underklasserna som implementerar metoden.
 
 - Innan du börjar, läs igenom hela uppgiftsbeskrivningen för att förstå vad som
   förväntas och planera ditt arbete.
-- Använd ["Test-Driven Development"] (TDD) och följ "Red-Green-Refactor"-flödet.
+- Använd [Test-Driven Development][3] (TDD) och följ "Red-Green-Refactor"-flödet.
   Detta ger en strukturerad utvecklingsprocess och hjälper dig att upprätthålla
   hög kodkvalitet. Genom - att arbeta enligt TDD får du "på köpet" de minst fem
   tester per konkret underklass som uppgiften kräver.
-- Börja utveckla GenericDocument och PartType först. Dessa utgör grundstenarna i
-  din uppgiftslösning.
-- Introducera `PlainDocument, HTMLDocument, och MarkdownDocument i din
-  utvecklingsprocess för att se hur allt fungerar tillsammans.
+- Börja utveckla `GenericDocument` och `PartType` först. Dessa utgör
+  grundstenarna i din uppgiftslösning.
+- Introducera `PlainDocument`, `HTMLDocument`, och `MarkdownDocument` i din
+  utvecklingsprocess så snart du kan för att se hur allt fungerar tillsammans.
 - Gör regelbundna commits och sträva efter att skriva klara och koncisa
-  commit-meddelanden. Detta förbättrar spårbarheten i ditt projekt och
-  underlättar samarbete.
+  commit-meddelanden.
 
 ### Exempel
 
-Se underklasserna som ärver från `GenericDocument` för exempel på hur
-klass av typen `GenericDocument` kan användass.
+Se underklasserna som ärver från `GenericDocument` för exempel på hur en klass
+av typen `GenericDocument` kan användass.
 
 ## Underklassen `PlainDocument`
 
@@ -658,7 +688,7 @@ någon roll i kombination med att överklassen faller tillbaka på att anropa
 
 Vad den ska göra.
 
-- Signatur: `render_paragraph(text) -> str`
+- Signatur: `render_paragraph(self, text) -> str`
 - Utskrift: Inget!
 - Returvärde: Texten i `text` med två radmatningar (`"\n\n"`) tillagda på slutet
   för att generera en tom rad mellan varje dokumentdel.
@@ -741,7 +771,7 @@ Metoderna ska utnyttja följande HTML:
 Oavsett metod så bör eventuella "HTML-tecken" i dokumentdelens text skrivas om
 så att inte _det_ tolkas som HTML (för att undvika XSS-attacker och säkerställa
 korrekt visning av texten som inte är avsedd som HTML-kod). Lägg till följande
-klassmetod till klassen och använda den för att skriva om den text som ska stå
+klassmetod till klassen och använd den för att skriva om den text som ska stå
 inom metodens HTML-taggar:
 
 ```python
@@ -761,7 +791,7 @@ Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för
 - Utskrift: Inget!
 - Returvärde: Texten i `text` efter att den behandlats med `escape_html`-metoden
   inom en `<h1>`-tagg. Alla förekomster av `\n` i texten är dessutom utbytta mot
-  `<br/>` (förutom för `codeblock`).
+  `<br>` (förutom för `codeblock` där radmatningarna behålls).
 
 #### Exempel
 
@@ -778,17 +808,17 @@ Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för
 3. Anrop: `render_heading1("In a world where code flows like a fountain,\nPython reigns, a versatile mountain.")`
 
    - Utskrift: Inget
-   - Returvärde: `"<h1>In a world where code flows like a fountain,<br/>Python reigns, a versatile mountain.</h1>"`
+   - Returvärde: `"<h1>In a world where code flows like a fountain,<br>Python reigns, a versatile mountain.</h1>"`
 
-4. Anrop: `render_heading1("<strong>liquor</strong")`
+4. Anrop: `render_heading1("<strong>liquor</strong>")`
 
    - Utskrift: Inget
-   - Returvärde: `"<h1>&lt;strong&gt;liquor&lt;/strong</h1>"`
+   - Returvärde: `"<h1>&lt;strong&gt;liquor&lt;/strong&gt;</h1>"`
 
 5. Anrop: `render_codeblock("<marquee>\n  <blink>\n    <h1>WELCOME TO MY WEBSITE</h1>\n    1990's called, they want their marquee back.\n  </blink>\n</marquee>")`
 
    - Utskrift: Inget
-   - Returvärde: `"&lt;marquee&gt;\n  &lt;blink&gt;\n    &lt;h1&gt;WELCOME TO MY WEBSITE&lt;/h1&gt;\n    1990&#39;s called, they want their marquee back.\n  &lt;/blink&gt;\n&lt;/marquee&gt;"`
+   - Returvärde: `"<pre><code>&lt;marquee&gt;\n  &lt;blink&gt;\n    &lt;h1&gt;WELCOME TO MY WEBSITE&lt;/h1&gt;\n    1990&#39;s called, they want their marquee back.\n  &lt;/blink&gt;\n&lt;/marquee&gt;</code></pre>"`
 
 ### Exempel
 
@@ -845,9 +875,7 @@ Metoderna ska utnyttja följande Markdown-syntax:
   efter `codeblock`-texten.
 
 För `heading`s så behöver nyradstecken (`\n`) i texten ersättas med ett
-mellanslag (` `), eftersom Markdown inte stödjer rubriker över flera rader. För
-`heading`s behöver denna ersättning ske innan anropet till `escape_markdown` som
-beskrivs nedan.
+mellanslag (` `), eftersom Markdown inte stödjer rubriker över flera rader.
 
 För att hantera specifika Markdown-tecken som kan påverka formateringen (t.ex.
 backticks i ett `codeblock`), kan det vara bra att införa en metod för att
@@ -856,23 +884,16 @@ hantera dessa fall:
 ```python
 @classmethod
 def escape_markdown(cls, text):
-    # Exempel på en enkel escape-funktion, den kan behöva utökas lite men ramla
-    # inte ned i det bottenlösa hål som innebär att få denna funktion perfekt.
-    parts = text.split("`")
-    for i in range(len(parts)):
-        if i % 2 == 0:  # Utanför backticks
-            parts[i] = parts[i].replace("\\", "\\\\").replace("#", "\\#")
-        else:  # Inom backticks
-            parts[i] = parts[i].replace("`", "\\`")
-    return "`".join(parts)
+    return text.replace("\\", "\\\\").replace("`", "\\`").replace("#", "\\#")
+
 ```
 
 Följande beskrivning för `render_heading1` fungerar på motsvarande sätt för de
 övriga fem metoderna.
 
-- Signatur: `render_heading1(text) -> str`
+- Signatur: `render_heading1(self, text) -> str`
 - Utskrift: Inget!
-- Returvärde: `# ` sammanslaget med texten i `text` följt av nyradstecken (`\n`)
+- Returvärde: `# ` sammanslaget med texten i `text` följt två nyradstecken (`\n`)
 
 #### Exempel
 
@@ -933,7 +954,7 @@ print(markdown_text)  # -> # A poetic embrace in code\n\nCreated by a self-aware
 
 - Förslag på "arbetsplan" för uppgiften
     1. Läs igenom hela beskrivningen en gång innan du börjar utveckla.
-    2. Använd "Test-Driven Development" när du arbetar och följ
+    2. Använd [Test-Driven Development][3] när du arbetar och följ
        "Red-Green-Refactor"-flödet. Skriv dina tester i de filen
        uppgiftsbeskrivningen anger.
     2. Börja med `GenericDocument` och `PartType`
@@ -943,7 +964,7 @@ print(markdown_text)  # -> # A poetic embrace in code\n\nCreated by a self-aware
        en bra idé att göra färdigt en av klasserna med `Document` i namnet och
        sedan gå vidare till nästa. Arbeta "brett" och försök "gå i mål" ungefär
        samtidigt med `HTMLDocument` och `MarkdownDocument`.
-    6. Gör commit ofta! Försök ha att satsa mer på bra commit-meddelanden i
+    6. Gör commit ofta! Försök att att satsa mer på bra commit-meddelanden i
        denna uppgift. Läs igenom [How to Write a Git Commit Message][4] och
        försök följa artikelns rekommendationer.
 - Stressa inte för mycket med denna uppgift.
